@@ -28,10 +28,12 @@ sudo usermod -aG docker $USER
 ```
 
 # 実行
-
+以下を実行[^1]。
 ```sh
 docker container run -it -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow apache/airflow:1.10.12-python3.8 initdb #初回のみ
 docker container run -it -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow apache/airflow:1.10.12-python3.8 scheduler
 ```
+
+[^1]: `-u`を上記の通り設定しないと、コンテナ経由で作成したファイルをコンテナ外から削除できない・`/etc/passwd`が適切に設定されないといった問題が生じる。後者について、コードの該当部分は[ここ](https://github.com/apache/airflow/blob/db3fe0926bb75008311eed804052c90bfa912424/scripts/in_container/prod/entrypoint_prod.sh#L94)。
 
 
