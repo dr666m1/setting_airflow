@@ -7,7 +7,7 @@ gceをairflow用のサーバーとして設定する。
 
 # dockerの設定
 
-```
+```sh
 # install
 mkdir -p ~/.tmp
 curl https://get.docker.com > ~/.tmp/install.sh
