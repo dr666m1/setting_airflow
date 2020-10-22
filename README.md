@@ -31,10 +31,10 @@ sudo usermod -aG docker $USER
 
 ```sh
 docker container run --rm -it -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow apache/airflow:1.10.12-python3.8 initdb #初回のみ
-docker container run --rm -it -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow apache/airflow:1.10.12-python3.8 scheduler
+docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow apache/airflow:1.10.12-python3.8 scheduler
 ```
 
-# 捕捉
+# 補足
 ## airflow.cfg
 デフォルトから以下を変更している。
 
