@@ -14,6 +14,7 @@ gceをairflow用のサーバーとして設定する。
 AIRFLOW_HOME="$HOME/airflow"
 git clone https://github.com/dr666m1/setting_airflow.git $AIRFLOW_HOME
 echo "export AIRFLOW_HOME=$AIRFLOW_HOME" >> ~/.bashrc
+echo "export AIRFLOW_IMAGE=apache/airflow:1.10.12-python3.8" >> ~/.bashrc
 
 # dockerの準備
 mkdir -p ~/.tmp
@@ -30,8 +31,8 @@ sudo usermod -aG docker $USER
 - `/etc/passwd`が変更されない（→ホームディレクトリ関係で不整合が生じる）。コードの該当部分は[ここ](https://github.com/apache/airflow/blob/db3fe0926bb75008311eed804052c90bfa912424/scripts/in_container/prod/entrypoint_prod.sh#L94)。
 
 ```sh
-docker container run --rm -it -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow apache/airflow:1.10.12-python3.8 initdb #初回のみ
-docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow apache/airflow:1.10.12-python3.8 scheduler
+docker container run --rm -it -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAGE initdb #初回のみ
+docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAGE scheduler
 ```
 
 # 補足
