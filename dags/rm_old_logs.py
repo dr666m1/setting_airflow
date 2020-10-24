@@ -23,7 +23,7 @@ dag = DAG(
     'rm_old_logs',
     default_args=common_args,
     description='rm_old_logs',
-    schedule_interval="55 12 *  *  *",
+    schedule_interval="59 12 *  *  *",
 )
 
 task1 = BashOperator(
@@ -31,7 +31,7 @@ task1 = BashOperator(
     bash_command='''
         echo $AIRFLOW_HOME
         echo aaa
-    '''
+    ''',
     dag=dag,
 )
 
