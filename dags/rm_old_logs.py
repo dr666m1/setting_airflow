@@ -23,7 +23,7 @@ dag = DAG(
     'rm_old_logs',
     default_args=common_args,
     description='rm_old_logs',
-    schedule_interval="00 00 *  *  *",
+    schedule_interval="55 12 *  *  *",
 )
 
 task1 = BashOperator(
