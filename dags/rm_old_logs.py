@@ -23,14 +23,24 @@ dag = DAG(
     'rm_old_logs',
     default_args=common_args,
     description='rm_old_logs',
-    schedule_interval="16 13 *  *  *",
+    schedule_interval="00 00 01  *  *",
 )
 
 task1 = BashOperator(
-    task_id='rm_old_logs',
-    bash_command='''
-        tree $AIRFLOW_HOME/logs
-    ''',
+    task_id='dag_processor_manager',
+    bash_command="""
+        cp $AIRFLOW_HOME/logs/dag_processor_manager/dag_processor_manager{,_old}.log
+        echo -n > $AIRFLOW_HOME/logs/dag_processor_manager/dag_processor_manager.log
+    """,
+    dag=dag,
+)
+
+task2 = BashOperator(
+    task_id='else',
+    bash_command="""
+        find $AIRFLOW_HOME/logs -mtime +30 -print | grep -E '^.*/[0-9]{4}-[0-9]{2}-[0-9]{2}[^/]*$'
+        find $AIRFLOW_HOME/logs -mtime +30 -print | xargs rm -rf
+    """,
     dag=dag,
 )
 
