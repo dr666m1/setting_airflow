@@ -43,3 +43,5 @@ docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAG
 - load_examples = False
 - dag_discovery_safe_mode = False
 - catchup_by_default = False
+
+## dags/rm_old_logs.py
