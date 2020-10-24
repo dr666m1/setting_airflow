@@ -44,4 +44,4 @@ task2 = BashOperator(
     dag=dag,
 )
 
-task1 #>> task2
+#task1 >> task2
