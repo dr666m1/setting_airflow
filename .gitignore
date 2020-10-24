@@ -1,5 +1,5 @@
-*
-!README.md
-!airflow.cfg
-!.gitignore
+dags/*
 !dags/rm_old_logs.py
+airflow.db
+logs/*
+unittests.cfg
