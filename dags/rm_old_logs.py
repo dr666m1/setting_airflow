@@ -23,14 +23,13 @@ dag = DAG(
     'rm_old_logs',
     default_args=common_args,
     description='rm_old_logs',
-    schedule_interval="59 12 *  *  *",
+    schedule_interval="16 13 *  *  *",
 )
 
 task1 = BashOperator(
     task_id='rm_old_logs',
     bash_command='''
-        echo $AIRFLOW_HOME
-        echo aaa
+        tree $AIRFLOW_HOME/logs
     ''',
     dag=dag,
 )
