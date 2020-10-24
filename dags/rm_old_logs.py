@@ -14,8 +14,8 @@ from datetime import timedelta
 common_args = {
     'owner': os.environ.get("USER", "unknown"),
     'depends_on_past': False,
-    'start_date': days_ago(1),
-    'retries': 5,
+    'start_date': days_ago(31),
+    'retries': 2,
     'retry_delay': timedelta(minutes=5),
 }
 
