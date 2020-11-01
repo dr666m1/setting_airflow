@@ -5,11 +5,19 @@ jobs:
     name: deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v2
 
-      - name: Commit
+      - name: replace
         run: |
-          sed -r "s/rm_old_logs_.{7}/rm_old_logs_${GITHUB_SHA:0:7}/g" ./dags/rm_old_logs.py
+          sed -ir "s/rm_old_logs_.{7}/rm_old_logs_${GITHUB_SHA:0:7}/g" ./dags/rm_old_logs.py
+
+      - name: git setting
+        run: |
+          git config --local unknown@example.com
+          git config --local unknown
+
+      - name: commit
+        run: |
           git commit -m "replace hash" -a
           git push origin main
