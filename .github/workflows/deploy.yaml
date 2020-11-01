@@ -1,0 +1,19 @@
+name: deploy
+on: push
+jobs:
+  main:
+    name: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare
+        id: prep
+        run: |
+          SHA=${GITHUB_SHA:0:7}
+          echo "::set-output name=sha::${SHA}"
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Commit
+        run: |
+          echo ${{ steps.prep.outputs.sha }}

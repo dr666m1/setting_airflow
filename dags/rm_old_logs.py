@@ -9,18 +9,18 @@ from airflow.utils.dates import days_ago
 # These args will get passed on to each operator
 # You can override them on a per-task basis during operator initialization
 import os
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 common_args = {
     'owner': os.environ.get("USER", "unknown"),
     'depends_on_past': False,
-    'start_date': days_ago(31),
+    'start_date': datetime(2020, 9, 1),
     'retries': 2,
     'retry_delay': timedelta(minutes=5),
 }
 
 dag = DAG(
-    'rm_old_logs',
+    'rm_old_logs_SHORT_SHA', # dagの名称変わらないと、起動しないかも
     default_args=common_args,
     description='rm_old_logs',
     schedule_interval="00 00 01  *  *",
