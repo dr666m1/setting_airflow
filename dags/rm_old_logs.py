@@ -38,8 +38,8 @@ task1 = BashOperator(
 task2 = BashOperator(
     task_id='else',
     bash_command="""
-        find $AIRFLOW_HOME/logs -mtime +7 -print | grep -E '^.*/[0-9]{4}-[0-9]{2}-[0-9]{2}[^/]*$'
-        find $AIRFLOW_HOME/logs -mtime +7 -print | xargs rm -rf
+        find $AIRFLOW_HOME/logs -mtime +31 -print | grep -E '^.*/[0-9]{4}-[0-9]{2}-[0-9]{2}[^/]*$'
+        find $AIRFLOW_HOME/logs -mtime +31 -print | xargs rm -rf
     """,
     dag=dag,
 )
