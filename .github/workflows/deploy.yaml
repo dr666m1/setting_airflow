@@ -10,10 +10,11 @@ jobs:
         run: |
           SHA=${GITHUB_SHA:0:7}
           echo "::set-output name=sha::${SHA}"
+          AAA="aaa"
 
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Commit
         run: |
-          echo ${{ steps.prep.outputs.sha }}
+          echo $AAA
