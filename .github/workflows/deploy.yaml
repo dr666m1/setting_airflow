@@ -10,4 +10,4 @@ jobs:
 
       - name: Commit
         run: |
-          sed -r "s/rm_old_logs_.{7}/${GITHUB_SHA:0:7}/g"
+          sed -r "s/rm_old_logs_.{7}/${GITHUB_SHA:0:7}/g" ./dags/rm_old_logs.py
