@@ -8,10 +8,6 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: replace
-        run: |
-          sed -ir "s/rm_old_logs_.{7}/rm_old_logs_${GITHUB_SHA:0:7}/g" ./dags/rm_old_logs.py
-
       - name: git setting
         run: |
           git config --local user.email unknown@example.com
@@ -19,5 +15,6 @@ jobs:
 
       - name: commit
         run: |
-          git commit -m "replace hash" -a
+          sed -ir "s/rm_old_logs_.{7}/rm_old_logs_${GITHUB_SHA:0:7}/g" ./dags/rm_old_logs.py
+          git commit -a -m "replace hash"
           git push origin main
