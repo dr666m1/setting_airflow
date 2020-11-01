@@ -14,8 +14,8 @@ jobs:
 
       - name: git setting
         run: |
-          git config --local unknown@example.com
-          git config --local unknown
+          git config --local user.email unknown@example.com
+          git config --local user.name  unknown
 
       - name: commit
         run: |
