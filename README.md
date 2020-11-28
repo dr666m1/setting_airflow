@@ -47,3 +47,6 @@ docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAG
 ## dags/rm_old_logs.py
 30日以上前のログを削除するdagを含んでいる。
 ログが肥大化して、サーバーが停止するのを防ぐ目的。
+
+### CloudMonitoringAgent
+[CloudMonitoringAgent](https://cloud.google.com/monitoring/agent/installation)
