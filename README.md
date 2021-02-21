@@ -17,6 +17,7 @@ AIRFLOW_HOME="$HOME/airflow"
 git clone https://github.com/dr666m1/setting_airflow.git $AIRFLOW_HOME
 echo "export AIRFLOW_HOME=$AIRFLOW_HOME" >> ~/.bashrc
 echo "export AIRFLOW_IMAGE=apache/airflow:1.10.12-python3.8" >> ~/.bashrc
+source ~/.bashrc
 
 # dockerの準備
 mkdir -p ~/.tmp
@@ -26,11 +27,11 @@ chmod +x ~/.tmp/install.sh
 sudo usermod -aG docker $USER
 
 # systemdの設定
+sudo echo "DefaultEnvironment=AIRFLOW_HOME=$AIRFLOW_HOME AIRFLOW_IMAGE=$AIRFLOW_IMAGE AIRFLOW_USER_ID=$(id -u)" >> /etc/systemd/system.conf
 sudo cp ./docker-airflow.service /lib/systemd/system/
 sudo systemctl enable docker-airflow
 
 # airflowの初期化（docker image pullも兼ねる）
-source ~/.bashrc
 docker container run --rm -it -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAGE initdb
 ```
 
@@ -89,10 +90,10 @@ gcloud beta scheduler jobs create pubsub shutdown-dev-instances \
 ログが肥大化して、サーバーが停止するのを防ぐ目的。
 
 ### airflowコマンドの実行
-末尾の`scheduler`を`list-dags`など任意のコマンドに変更すれば実行できる。
+末尾の`list_dags`など任意のコマンドに変更して実行。
 
 ```sh
-docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAGE scheduler
+docker container run -it --rm -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAGE list_dags
 ```
 ちなみに`-u`を適切に設定しないと次のような問題が生じる。
 
@@ -100,6 +101,5 @@ docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAG
 - `/etc/passwd`が変更されない（ホームディレクトリ関係で不整合が生じる）。コードの該当部分は[ここ](https://github.com/apache/airflow/blob/db3fe0926bb75008311eed804052c90bfa912424/scripts/in_container/prod/entrypoint_prod.sh#L94)。
 
 ### CloudMonitoringAgent
-必要なら導入する。
-[CloudMonitoringAgent](https://cloud.google.com/monitoring/agent/installation)
+必要なら[ここ](https://cloud.google.com/monitoring/agent/installation)を見て導入する。
 
