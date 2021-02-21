@@ -1,11 +1,12 @@
-# 前提
+## 前提
 gceをairflow用のサーバーとして設定する。
 条件としては以下を想定。
 
 - マシンタイプはf1-micro
 - OSはUbuntu 18.04 LTS
 
-# 準備
+## 準備
+### GCEから
 以下を実行。
 `~/.bashrc`やグループの反映には再ログインが必要。
 
@@ -24,7 +25,50 @@ chmod +x ~/.tmp/install.sh
 sudo usermod -aG docker $USER
 ```
 
-# 実行
+### ローカル・GCPコンソールから
+経験上なぜかたまにサーバーの再起動が必要になるため、いっそ定期的に再起動されるよう設定する。
+参考は[この記事](https://cloud.google.com/scheduler/docs/start-and-stop-compute-engine-instances-on-a-schedule?hl=ja)。
+
+まずはGCEが一連の処理の対象になるよう、ラベル`env=dev`を追加。
+その後、以下を実行。
+
+```
+mkdir -p work
+cd work
+
+# create pub/sub topic
+gcloud pubsub topics create start-instance-event
+gcloud pubsub topics create stop-instance-event
+
+# download & deploy functions
+curl -OL https://raw.githubusercontent.com/GoogleCloudPlatform/nodejs-docs-samples/master/functions/scheduleinstance/index.js
+curl -OL https://raw.githubusercontent.com/GoogleCloudPlatform/nodejs-docs-samples/master/functions/scheduleinstance/package.json
+
+gcloud functions deploy startInstancePubSub \
+    --trigger-topic start-instance-event \
+    --runtime nodejs10 \
+    --allow-unauthenticated
+
+gcloud functions deploy stopInstancePubSub \
+    --trigger-topic stop-instance-event \
+    --runtime nodejs10 \
+    --allow-unauthenticated
+
+# setting Cloud Scheduler
+gcloud beta scheduler jobs create pubsub startup-dev-instances \
+    --schedule '0 4 * * *' \
+    --topic start-instance-event \
+    --message-body '{"zone":"us-west1-a", "label":"env=dev"}' \
+    --time-zone 'Asia/Tokyo'
+
+gcloud beta scheduler jobs create pubsub shutdown-dev-instances \
+    --schedule '0 3 * * *' \
+    --topic stop-instance-event \
+    --message-body '{"zone":"us-west1-a", "label":"env=dev"}' \
+    --time-zone 'Asia/Tokyo'
+```
+
+## 実行
 以下を実行。`-u`を適切に設定しないと次のような問題が生じる。
 
 - コンテナ経由で作成したファイルをコンテナ外から削除できない
@@ -35,8 +79,8 @@ docker container run --rm -it -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLO
 docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAGE scheduler
 ```
 
-# 補足
-## airflow.cfg
+## 補足
+### airflow.cfg
 デフォルトから以下を変更している。
 
 - dags_are_paused_at_creation = False
@@ -44,6 +88,6 @@ docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAG
 - dag_discovery_safe_mode = False
 - catchup_by_default = False
 
-## dags/rm_old_logs.py
+### dags/rm_old_logs.py
 30日以上前のログを削除するdagを含んでいる。
 ログが肥大化して、サーバーが停止するのを防ぐ目的。
