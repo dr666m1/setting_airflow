@@ -8,7 +8,8 @@ After=docker.service
 Type=simple
 ExecStartPre=-/usr/bin/docker container stop airflow
 ExecStartPre=-/usr/bin/docker container rm airflow
-ExecStart=/usr/bin/docker container run --name airflow -u `id -u airflow`:0 -v /home/airflow/airflow:/opt/airflow apache/airflow:1.10.12-python3.8
+ExecStartPre=/bin/bash -c "/bin/systemctl set-environment AIRFLOW_USER_ID=$(id -u airflow)"
+ExecStart=/usr/bin/docker container run --name airflow -u ${AIRFLOW_USER_ID}:0 -v /home/airflow/airflow:/opt/airflow apache/airflow:1.10.12-python3.8 scheduler
 
 [Install]
 WantedBy=multi-user.target

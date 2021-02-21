@@ -3,4 +3,3 @@ dags/*
 airflow.db
 logs/*
 unittests.cfg
-work/

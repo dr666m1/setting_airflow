@@ -4,11 +4,12 @@ gceをairflow用のサーバーとして設定する。
 
 - マシンタイプはf1-micro
 - OSはUbuntu 18.04 LTS
+- user名はairflow
 
 ## 準備
 ### GCEから
 以下を実行。
-`~/.bashrc`やグループの反映には再ログインが必要。
+再起動すればdocker containerが起動しているはず。
 
 ```sh
 # git clone
@@ -24,9 +25,13 @@ chmod +x ~/.tmp/install.sh
 ~/.tmp/install.sh
 sudo usermod -aG docker $USER
 
-# service化
-cp ./docker-airflow.service /usr/lib/systemd/system/
-sudo systemctl enable docker-registry
+# systemdの設定
+sudo cp ./docker-airflow.service /lib/systemd/system/
+sudo systemctl enable docker-airflow
+
+# airflowの初期化（docker image pullも兼ねる）
+source ~/.bashrc
+docker container run --rm -it -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAGE initdb
 ```
 
 ### ローカル・GCPコンソールから
@@ -35,8 +40,8 @@ sudo systemctl enable docker-registry
 まずはGCEが一連の処理の対象になるようラベル`env=dev`を追加し、その後以下を実行。
 
 ```sh
-mkdir -p work
-cd work
+mkdir -p ~/.tmp
+cd ~/.tmp
 
 # create pub/sub topic
 gcloud pubsub topics create start-instance-event
@@ -70,17 +75,6 @@ gcloud beta scheduler jobs create pubsub shutdown-dev-instances \
     --time-zone 'Asia/Tokyo'
 ```
 
-## 実行
-以下を実行。`-u`を適切に設定しないと次のような問題が生じる。
-
-- コンテナ経由で作成したファイルをコンテナ外から削除できない
-- `/etc/passwd`が変更されない（ホームディレクトリ関係で不整合が生じる）。コードの該当部分は[ここ](https://github.com/apache/airflow/blob/db3fe0926bb75008311eed804052c90bfa912424/scripts/in_container/prod/entrypoint_prod.sh#L94)。
-
-```sh
-docker container run --rm -it -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAGE initdb #初回のみ
-docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAGE scheduler
-```
-
 ## 補足
 ### airflow.cfg
 デフォルトから以下を変更している。
@@ -94,5 +88,18 @@ docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAG
 30日以上前のログを削除するdagを含んでいる。
 ログが肥大化して、サーバーが停止するのを防ぐ目的。
 
+### airflowコマンドの実行
+末尾の`scheduler`を`list-dags`など任意のコマンドに変更すれば実行できる。
+
+```sh
+docker container run -d -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAGE scheduler
+```
+ちなみに`-u`を適切に設定しないと次のような問題が生じる。
+
+- コンテナ経由で作成したファイルをコンテナ外から削除できない
+- `/etc/passwd`が変更されない（ホームディレクトリ関係で不整合が生じる）。コードの該当部分は[ここ](https://github.com/apache/airflow/blob/db3fe0926bb75008311eed804052c90bfa912424/scripts/in_container/prod/entrypoint_prod.sh#L94)。
+
 ### CloudMonitoringAgent
+必要なら導入する。
 [CloudMonitoringAgent](https://cloud.google.com/monitoring/agent/installation)
+
