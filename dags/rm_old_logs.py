@@ -20,7 +20,7 @@ common_args = {
 }
 
 dag = DAG(
-    'rm_old_logs_79a216f', # xxxxxxx is replaced in github actions
+    'rm_old_logs_0ae804d', # xxxxxxx is replaced in github actions
     default_args=common_args,
     description='rm_old_logs',
     schedule_interval="00 00 01  *  *",
