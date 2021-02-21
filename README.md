@@ -23,16 +23,18 @@ curl https://get.docker.com > ~/.tmp/install.sh
 chmod +x ~/.tmp/install.sh
 ~/.tmp/install.sh
 sudo usermod -aG docker $USER
+
+# service化
+cp ./docker-airflow.service /usr/lib/systemd/system/
+sudo systemctl enable docker-registry
 ```
 
 ### ローカル・GCPコンソールから
 経験上なぜかたまにサーバーの再起動が必要になるため、いっそ定期的に再起動されるよう設定する。
 参考は[この記事](https://cloud.google.com/scheduler/docs/start-and-stop-compute-engine-instances-on-a-schedule?hl=ja)。
+まずはGCEが一連の処理の対象になるようラベル`env=dev`を追加し、その後以下を実行。
 
-まずはGCEが一連の処理の対象になるよう、ラベル`env=dev`を追加。
-その後、以下を実行。
-
-```
+```sh
 mkdir -p work
 cd work
 
@@ -72,7 +74,7 @@ gcloud beta scheduler jobs create pubsub shutdown-dev-instances \
 以下を実行。`-u`を適切に設定しないと次のような問題が生じる。
 
 - コンテナ経由で作成したファイルをコンテナ外から削除できない
-- `/etc/passwd`が変更されない（→ホームディレクトリ関係で不整合が生じる）。コードの該当部分は[ここ](https://github.com/apache/airflow/blob/db3fe0926bb75008311eed804052c90bfa912424/scripts/in_container/prod/entrypoint_prod.sh#L94)。
+- `/etc/passwd`が変更されない（ホームディレクトリ関係で不整合が生じる）。コードの該当部分は[ここ](https://github.com/apache/airflow/blob/db3fe0926bb75008311eed804052c90bfa912424/scripts/in_container/prod/entrypoint_prod.sh#L94)。
 
 ```sh
 docker container run --rm -it -u `id -u`:0 -v $AIRFLOW_HOME:/opt/airflow $AIRFLOW_IMAGE initdb #初回のみ

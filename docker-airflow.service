@@ -1,0 +1,14 @@
+[Unit]
+Description=Docker Airflow
+Documentation=https://github.com/dr666m1/setting_airflow
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/docker container stop airflow
+ExecStartPre=-/usr/bin/docker container rm airflow
+ExecStart=/usr/bin/docker container run --name airflow -u `id -u airflow`:0 -v /home/airflow/airflow:/opt/airflow apache/airflow:1.10.12-python3.8
+
+[Install]
+WantedBy=multi-user.target
